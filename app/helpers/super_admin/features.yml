@@ -5,39 +5,39 @@
 saml:
   name: 'SAML SSO'
   description: 'Configuration for controlling SAML Single Sign-On availability'
-  enabled: <%= ChatwootApp.enterprise? %>
+  enabled: true # <%= ChatwootApp.enterprise? %>
   icon: 'i-lucide-key-round'
   config_key: 'saml'
   enterprise: true
 custom_branding:
   name: 'Custom Branding'
   description: 'Apply your own branding to this installation.'
-  enabled: <%= (ChatwootHub.pricing_plan != 'community') %>
+  enabled: true # <%= (ChatwootHub.pricing_plan != 'community') %>
   icon: 'i-lucide-palette'
   config_key: 'custom_branding'
   enterprise: true
 agent_capacity:
   name: 'Agent Capacity'
   description: 'Set limits to auto-assigning conversations to your agents.'
-  enabled: <%= (ChatwootHub.pricing_plan != 'community') %>
+  enabled: true # <%= (ChatwootHub.pricing_plan != 'community') %>
   icon: 'i-lucide-gauge'
   enterprise: true
 audit_logs:
   name: 'Audit Logs'
   description: 'Track and trace account activities with ease with detailed audit logs.'
-  enabled: <%= (ChatwootHub.pricing_plan != 'community') %>
+  enabled: true # <%= (ChatwootHub.pricing_plan != 'community') %>
   icon: 'i-lucide-scroll-text'
   enterprise: true
 disable_branding:
   name: 'Disable Branding'
   description: 'Disable branding on live-chat widget and external emails.'
-  enabled: <%= (ChatwootHub.pricing_plan != 'community') %>
+  enabled: true # <%= (ChatwootHub.pricing_plan != 'community') %>
   icon: 'i-lucide-eye-off'
   enterprise: true
 voice_calls:
   name: 'Voice Calls'
   description: 'Enable voice calling capabilities for your agents and customers.'
-  enabled: <%= (ChatwootHub.pricing_plan != 'community') %>
+  enabled: true # <%= (ChatwootHub.pricing_plan != 'community') %>
   icon: 'i-lucide-phone-call'
   enterprise: true
 

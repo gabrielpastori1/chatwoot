@@ -8,7 +8,7 @@ module SuperAdmin::FeaturesHelper
     quantity = ChatwootHub.pricing_plan_quantity
 
     if plan == 'premium'
-      "You are currently on the <span class='font-semibold'>#{plan.titleize}</span> plan with <span class='font-semibold'>#{quantity} agents</span>."
+      "You are currently on the <span class='font-semibold'>#{plan.titleize}</span> #{plan} plan with <span class='font-semibold'>#{quantity} agents</span>."
     else
       "You are currently on the <span class='font-semibold'>#{plan.titleize}</span> edition plan."
     end

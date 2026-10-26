@@ -42,8 +42,8 @@ export function usePolicy() {
   const checkInstallationType = config => {
     if (Array.isArray(config) && config.length > 0) {
       const installationCheck = {
-        [INSTALLATION_TYPES.ENTERPRISE]: isEnterprise,
-        [INSTALLATION_TYPES.CLOUD]: isOnChatwootCloud.value,
+        [INSTALLATION_TYPES.ENTERPRISE]: true, // isEnterprise,
+        [INSTALLATION_TYPES.CLOUD]: true, // isOnChatwootCloud.value,
         [INSTALLATION_TYPES.COMMUNITY]: true,
       };
 

@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe Captain::ConversationClassifierService do
   let(:conversation) { create(:conversation) }
-  let(:endpoint) { 'https://openrouter.ai/api/v1/systemone' }
+  let(:endpoint) { 'https://ai-gateway.vercel.sh/typesafe/v1/systemone' }
   let(:response) do
     { model: 'jev-1.13.0', answers: { priority: { type: 'choice', choice: 'medium', confidence: 0.8 } },
       usage: { input_tokens: 15, output_tokens: 0 } }

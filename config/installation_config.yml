@@ -217,12 +217,12 @@
   locked: false
 - name: CAPTAIN_OPENROUTER_API_KEY
   display_title: 'OpenRouter API Key'
-  description: 'The OpenRouter API key used by Captain Classifier and conversation monitors.'
+  description: 'Bearer token for Captain Classifier and conversation monitors. Requests go to the Vercel AI Gateway, so use an AI Gateway API key here.'
   locked: false
   type: secret
 - name: CAPTAIN_OPENROUTER_DECISION_MODEL_ENDPOINT
   display_title: 'OpenRouter Decision Model Endpoint'
-  description: 'The OpenRouter API base URL for Captain Classifier and conversation monitors. Example: https://openrouter.ai/api'
+  description: 'Optional Jev base URL. Leave blank to use the Vercel AI Gateway TypeSafe API at https://ai-gateway.vercel.sh/typesafe. The public OpenRouter URL is also sent there.'
   locked: false
 - name: CAPTAIN_FIRECRAWL_API_KEY
   display_title: 'FireCrawl API Key (optional)'

@@ -4,8 +4,6 @@ import { useI18n, I18nT } from 'vue-i18n';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import Popover from 'dashboard/components-next/popover/Popover.vue';
 import { useStore, useMapGetter } from 'dashboard/composables/store';
-import { useAccount } from 'dashboard/composables/useAccount';
-import { FEATURE_FLAGS } from 'dashboard/featureFlags';
 import { useMessageContext } from './provider.js';
 import { MESSAGE_VARIANTS, ORIENTATION } from './constants';
 
@@ -16,13 +14,10 @@ const props = defineProps({
 const { t } = useI18n();
 const { orientation, variant, createdAt } = useMessageContext();
 const store = useStore();
-const { isCloudFeatureEnabled } = useAccount();
 
 const isOpen = ref(false);
 
-const showSparkle = computed(() =>
-  isCloudFeatureEnabled(FEATURE_FLAGS.CAPTAIN)
-);
+const showSparkle = computed(() => true);
 
 const session = computed(() =>
   store.getters['captainAgentSessions/getSessionByMessageId'](props.messageId)

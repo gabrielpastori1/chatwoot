@@ -12,9 +12,6 @@ import {
 } from 'dashboard/helper/portalHelper';
 import ArticlePendingChangesPopover from 'dashboard/components-next/HelpCenter/Pages/ArticleEditorPage/ArticlePendingChangesPopover.vue';
 
-import { useMapGetter } from 'dashboard/composables/store.js';
-import { useConfig } from 'dashboard/composables/useConfig';
-import { FEATURE_FLAGS } from 'dashboard/featureFlags';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import EmojiIcon from 'dashboard/components-next/emoji-icon-picker/EmojiIcon.vue';
 import CardLayout from 'dashboard/components-next/CardLayout.vue';
@@ -87,20 +84,7 @@ const [showActionsDropdown, toggleDropdown] = useToggle();
 
 const pendingChangesPopoverRef = useTemplateRef('pendingChangesPopoverRef');
 
-const currentAccountId = useMapGetter('getCurrentAccountId');
-const isFeatureEnabledonAccount = useMapGetter(
-  'accounts/isFeatureEnabledonAccount'
-);
-const { isEnterprise } = useConfig();
-
-const isTranslationAvailable = computed(
-  () =>
-    isEnterprise &&
-    isFeatureEnabledonAccount.value(
-      currentAccountId.value,
-      FEATURE_FLAGS.CAPTAIN_TASKS
-    )
-);
+const isTranslationAvailable = computed(() => true);
 
 const articleMenuItems = computed(() => {
   const commonItems = Object.entries(ARTICLE_MENU_ITEMS).reduce(

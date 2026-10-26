@@ -2,8 +2,6 @@ import { ref, computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useAlert } from 'dashboard/composables';
 import ConversationAPI from 'dashboard/api/conversations';
-import { useAccount } from 'dashboard/composables/useAccount';
-import { FEATURE_FLAGS } from 'dashboard/featureFlags';
 import { MESSAGE_TYPE } from 'shared/constants/messages';
 
 const CLASSIFIED_MESSAGE_TYPES = [MESSAGE_TYPE.INCOMING, MESSAGE_TYPE.OUTGOING];
@@ -19,10 +17,7 @@ const CLASSIFIED_MESSAGE_TYPES = [MESSAGE_TYPE.INCOMING, MESSAGE_TYPE.OUTGOING];
  */
 export function useConversationSuggestions(type, conversation) {
   const { t } = useI18n();
-  const { isCloudFeatureEnabled } = useAccount();
-  const isEnabled = computed(() =>
-    isCloudFeatureEnabled(FEATURE_FLAGS.CAPTAIN_CLASSIFIER)
-  );
+  const isEnabled = computed(() => true);
   const results = ref({});
   const activeKey = ref(null);
 
