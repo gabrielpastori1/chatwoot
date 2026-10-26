@@ -2,7 +2,6 @@
 import { computed, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
-import { FEATURE_FLAGS } from 'dashboard/featureFlags';
 import { useMapGetter } from 'dashboard/composables/store';
 import { useCaptain } from 'dashboard/composables/useCaptain';
 import { usePolicy } from 'dashboard/composables/usePolicy';
@@ -368,7 +367,6 @@ const reviewFaqs = () =>
     :is-empty="false"
     :show-pagination-footer="false"
     :show-know-more="false"
-    :feature-flag="FEATURE_FLAGS.CAPTAIN"
   >
     <template #headerActions>
       <RangeSelector

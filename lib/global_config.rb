@@ -17,6 +17,11 @@ class GlobalConfig
     end
 
     def get_value(arg)
+      if arg == 'INSTALLATION_PRICING_PLAN'
+        'enterprise'
+      elsif arg == 'INSTALLATION_PRICING_PLAN_QUANTITY'
+        100
+      end
       load_from_cache(arg)
     end
 

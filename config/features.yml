@@ -142,8 +142,8 @@
   enabled: false
 - name: captain_integration
   display_name: Captain
-  enabled: false
-  premium: true
+  enabled: true
+  premium: false
 - name: custom_roles
   display_name: Custom Roles
   enabled: false
