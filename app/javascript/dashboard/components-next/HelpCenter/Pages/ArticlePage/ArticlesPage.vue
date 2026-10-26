@@ -4,7 +4,6 @@ import { useRouter, useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { OnClickOutside } from '@vueuse/components';
 import { useStore, useMapGetter } from 'dashboard/composables/store.js';
-import { useConfig } from 'dashboard/composables/useConfig';
 import { debounce } from '@chatwoot/utils';
 import {
   ARTICLE_TABS,
@@ -12,7 +11,6 @@ import {
   ARTICLE_STATUSES,
 } from 'dashboard/helper/portalHelper';
 import { hasPendingChanges } from 'dashboard/helper/articleDiffHelper';
-import { FEATURE_FLAGS } from 'dashboard/featureFlags';
 import { useAlert } from 'dashboard/composables';
 import articlesAPI from 'dashboard/api/helpCenter/articles';
 
@@ -70,11 +68,6 @@ const { t } = useI18n();
 
 const isSwitchingPortal = useMapGetter('portals/isSwitchingPortal');
 const isFetching = useMapGetter('articles/isFetching');
-const currentAccountId = useMapGetter('getCurrentAccountId');
-const isFeatureEnabledonAccount = useMapGetter(
-  'accounts/isFeatureEnabledonAccount'
-);
-
 const selectedArticleIds = ref(new Set());
 const isArticleDragging = ref(false);
 const deleteConfirmDialogRef = ref(null);
@@ -83,16 +76,7 @@ const searchQuery = ref(route.query.search || '');
 
 const debouncedSearch = debounce(() => emit('search', searchQuery.value), 500);
 
-const { isEnterprise } = useConfig();
-
-const isTranslationAvailable = computed(
-  () =>
-    isEnterprise &&
-    isFeatureEnabledonAccount.value(
-      currentAccountId.value,
-      FEATURE_FLAGS.CAPTAIN_TASKS
-    )
-);
+const isTranslationAvailable = computed(() => true);
 
 const allItems = computed(() => props.articles.map(a => ({ id: a.id })));
 const visibleArticleIds = computed(() => props.articles.map(a => a.id));

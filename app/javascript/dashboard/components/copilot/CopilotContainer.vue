@@ -51,14 +51,7 @@ const currentAccountId = useMapGetter('getCurrentAccountId');
 const isFeatureEnabledonAccount = useMapGetter(
   'accounts/isFeatureEnabledonAccount'
 );
-const isCopilotAvailable = computed(
-  () =>
-    isEnterprise &&
-    isFeatureEnabledonAccount.value(
-      currentAccountId.value,
-      FEATURE_FLAGS.CAPTAIN
-    )
-);
+const isCopilotAvailable = computed(() => true);
 
 const selectedAssistantId = ref(null);
 const selectedThread = computed(() =>

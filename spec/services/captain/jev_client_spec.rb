@@ -12,16 +12,16 @@ RSpec.describe Captain::JevClient do
 
   it 'uses the shared default endpoint and returns parsed System One data' do
     response = { model: 'jev-1.13.0', answers: { test: { type: 'noul', noul: 0.9 } } }
-    stub_request(:post, 'https://openrouter.ai/api/v1/systemone').to_return(status: 200, body: response.to_json)
+    stub_request(:post, 'https://ai-gateway.vercel.sh/typesafe/v1/systemone').to_return(status: 200, body: response.to_json)
 
     expect(client.call(body: body)).to eq(response.deep_stringify_keys)
-    expect(WebMock).to have_requested(:post, 'https://openrouter.ai/api/v1/systemone').with { |request|
+    expect(WebMock).to have_requested(:post, 'https://ai-gateway.vercel.sh/typesafe/v1/systemone').with { |request|
       request.headers['Authorization'] == 'Bearer test-key' && JSON.parse(request.body)['model'] == 'jev-latest'
     }.once
   end
 
   it 'exposes provider status and retry delay for monitor error handling' do
-    stub_request(:post, 'https://openrouter.ai/api/v1/systemone')
+    stub_request(:post, 'https://ai-gateway.vercel.sh/typesafe/v1/systemone')
       .to_return(status: 429, body: 'busy', headers: { 'Retry-After' => '12' })
 
     expect { client.call(body: body) }.to raise_error(described_class::HTTPError) { |error|
@@ -33,7 +33,7 @@ RSpec.describe Captain::JevClient do
   it 'records the exact request, response, model, usage, and cost in Langfuse' do
     response = { model: 'jev-1.13.0', answers: { test: { type: 'noul', noul: 0.9 } },
                  usage: { input_tokens: 12, output_tokens: 0, cost: 0.000001 } }
-    stub_request(:post, 'https://openrouter.ai/api/v1/systemone').to_return(status: 200, body: response.to_json)
+    stub_request(:post, 'https://ai-gateway.vercel.sh/typesafe/v1/systemone').to_return(status: 200, body: response.to_json)
     attributes = {}
     span = instance_double(OpenTelemetry::Trace::Span)
     tracer = instance_double(OpenTelemetry::Trace::Tracer)
@@ -53,11 +53,11 @@ RSpec.describe Captain::JevClient do
       'langfuse.session.id' => '7_42',
       'gen_ai.usage.input_tokens' => 12
     )
-    expect(WebMock).to have_requested(:post, 'https://openrouter.ai/api/v1/systemone').with(body: body).once
+    expect(WebMock).to have_requested(:post, 'https://ai-gateway.vercel.sh/typesafe/v1/systemone').with(body: body).once
   end
 
   it 'marks a failed Jev call without retrying it' do
-    stub_request(:post, 'https://openrouter.ai/api/v1/systemone').to_timeout
+    stub_request(:post, 'https://ai-gateway.vercel.sh/typesafe/v1/systemone').to_timeout
     attributes = {}
     span = instance_double(OpenTelemetry::Trace::Span, 'status=': nil)
     allow(span).to receive(:set_attribute) { |name, value| attributes[name] = value }
@@ -68,7 +68,7 @@ RSpec.describe Captain::JevClient do
 
     expect { client.call(body: body) }.to raise_error(Faraday::ConnectionFailed)
     expect(span).to have_received(:status=).with(an_instance_of(OpenTelemetry::Trace::Status))
-    expect(WebMock).to have_requested(:post, 'https://openrouter.ai/api/v1/systemone').once
+    expect(WebMock).to have_requested(:post, 'https://ai-gateway.vercel.sh/typesafe/v1/systemone').once
   end
 
   context 'when tracing fails' do
@@ -77,7 +77,7 @@ RSpec.describe Captain::JevClient do
     let(:exception_tracker) { instance_double(ChatwootExceptionTracker, capture_exception: nil) }
 
     before do
-      stub_request(:post, 'https://openrouter.ai/api/v1/systemone').to_return(status: 200, body: response.to_json)
+      stub_request(:post, 'https://ai-gateway.vercel.sh/typesafe/v1/systemone').to_return(status: 200, body: response.to_json)
       allow(ChatwootApp).to receive(:otel_enabled?).and_return(true)
       allow(OpentelemetryConfig).to receive(:tracer).and_return(tracer)
       allow(ChatwootExceptionTracker).to receive(:new).and_return(exception_tracker)
@@ -90,17 +90,17 @@ RSpec.describe Captain::JevClient do
 
       expect(client.call(body: body)).to eq(response.deep_stringify_keys)
       expect(exception_tracker).to have_received(:capture_exception)
-      expect(WebMock).to have_requested(:post, 'https://openrouter.ai/api/v1/systemone').once
+      expect(WebMock).to have_requested(:post, 'https://ai-gateway.vercel.sh/typesafe/v1/systemone').once
     end
 
     it 'raises the provider error once when recording it fails' do
-      stub_request(:post, 'https://openrouter.ai/api/v1/systemone').to_return(status: 429, body: 'busy')
+      stub_request(:post, 'https://ai-gateway.vercel.sh/typesafe/v1/systemone').to_return(status: 429, body: 'busy')
       span = instance_double(OpenTelemetry::Trace::Span, set_attribute: nil)
       allow(span).to receive(:status=).and_raise('exporter down')
       allow(tracer).to receive(:in_span).and_yield(span)
 
       expect { client.call(body: body) }.to raise_error(described_class::HTTPError)
-      expect(WebMock).to have_requested(:post, 'https://openrouter.ai/api/v1/systemone').once
+      expect(WebMock).to have_requested(:post, 'https://ai-gateway.vercel.sh/typesafe/v1/systemone').once
     end
 
     it 'still calls Jev when the span cannot start' do
@@ -108,7 +108,7 @@ RSpec.describe Captain::JevClient do
 
       expect(client.call(body: body)).to eq(response.deep_stringify_keys)
       expect(exception_tracker).to have_received(:capture_exception)
-      expect(WebMock).to have_requested(:post, 'https://openrouter.ai/api/v1/systemone').once
+      expect(WebMock).to have_requested(:post, 'https://ai-gateway.vercel.sh/typesafe/v1/systemone').once
     end
   end
 end

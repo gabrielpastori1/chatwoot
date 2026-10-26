@@ -4,7 +4,6 @@ import { OnClickOutside } from '@vueuse/components';
 import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useMapGetter } from 'dashboard/composables/store.js';
-import { usePolicy } from 'dashboard/composables/usePolicy';
 import Button from 'dashboard/components-next/button/Button.vue';
 import BackButton from 'dashboard/components/widgets/BackButton.vue';
 import PaginationFooter from 'dashboard/components-next/pagination/PaginationFooter.vue';
@@ -13,7 +12,7 @@ import Policy from 'dashboard/components/policy.vue';
 import AssistantSwitcher from 'dashboard/components-next/captain/pageComponents/switcher/AssistantSwitcher.vue';
 import CreateAssistantDialog from 'dashboard/components-next/captain/pageComponents/assistant/CreateAssistantDialog.vue';
 
-const props = defineProps({
+defineProps({
   currentPage: {
     type: Number,
     default: 1,
@@ -39,10 +38,6 @@ const props = defineProps({
     default: () => [],
   },
   buttonLabel: {
-    type: String,
-    default: '',
-  },
-  featureFlag: {
     type: String,
     default: '',
   },
@@ -77,7 +72,6 @@ const emit = defineEmits(['click', 'close', 'update:currentPage']);
 const { t } = useI18n();
 
 const route = useRoute();
-const { shouldShowPaywall } = usePolicy();
 
 const showAssistantSwitcherDropdown = ref(false);
 const createAssistantDialogRef = ref(null);
@@ -96,9 +90,7 @@ const activeAssistantName = computed(() => {
   );
 });
 
-const showPaywall = computed(() => {
-  return shouldShowPaywall(props.featureFlag);
-});
+const showPaywall = computed(() => false);
 
 const handleButtonClick = () => {
   emit('click');

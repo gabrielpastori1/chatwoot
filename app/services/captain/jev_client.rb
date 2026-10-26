@@ -1,8 +1,11 @@
 class Captain::JevClient
   include Integrations::LlmInstrumentationConstants
 
-  ENDPOINT = 'https://openrouter.ai/api'.freeze
+  # TypeSafe-compatible surface on Vercel AI Gateway. The request body stays
+  # { model, state, questions } and answers still use noul/choice/score.
+  ENDPOINT = 'https://ai-gateway.vercel.sh/typesafe'.freeze
   SYSTEM_ONE_PATH = '/v1/systemone'.freeze
+  OPENROUTER_BASES = ['https://openrouter.ai', 'https://openrouter.ai/api'].freeze
 
   class HTTPError < StandardError
     attr_reader :status, :retry_after
@@ -29,8 +32,14 @@ class Captain::JevClient
   end
 
   def self.endpoint
-    base_url = GlobalConfigService.load('CAPTAIN_OPENROUTER_DECISION_MODEL_ENDPOINT', nil).presence || ENDPOINT
-    "#{base_url.chomp('/')}#{SYSTEM_ONE_PATH}"
+    "#{decision_base}#{SYSTEM_ONE_PATH}"
+  end
+
+  def self.decision_base
+    configured = GlobalConfigService.load('CAPTAIN_OPENROUTER_DECISION_MODEL_ENDPOINT', nil).to_s.strip.chomp('/')
+    return ENDPOINT if configured.blank? || OPENROUTER_BASES.include?(configured)
+
+    configured
   end
 
   def call(body:)
