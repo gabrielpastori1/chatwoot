@@ -473,7 +473,7 @@ RSpec.describe Captain::Tools::HttpTool, type: :model do
         allow(Captain::EmailVerification).to receive(:new).with(conversation)
                                                           .and_return(instance_double(Captain::EmailVerification, verified_email: 'jane@example.com'))
         redirected_headers = nil
-        stub_request(:get, 'https://example.com/api/data').to_return(status: 302, headers: { 'Location' => 'http://example.com/data' })
+        stub_request(:get, 'https://example.com/api/data?phone=%2B14155550100').to_return(status: 302, headers: { 'Location' => 'http://example.com/data' })
         stub_request(:get, 'http://example.com/data').with do |request|
           redirected_headers = request.headers.transform_keys(&:downcase)
           true
@@ -619,7 +619,7 @@ RSpec.describe Captain::Tools::HttpTool, type: :model do
         contact.update!(phone_number: '+1234567890')
         tool_context_with_state.state[:contact][:phone_number] = '+1234567890'
 
-        stub_request(:get, 'https://example.com/api/data')
+        stub_request(:get, 'https://example.com/api/data?phone=%2B1234567890')
           .with(headers: {
                   'X-Chatwoot-Contact-Phone' => '+1234567890'
                 })
@@ -627,7 +627,7 @@ RSpec.describe Captain::Tools::HttpTool, type: :model do
 
         tool.perform(tool_context_with_state)
 
-        expect(WebMock).to have_requested(:get, 'https://example.com/api/data')
+        expect(WebMock).to have_requested(:get, 'https://example.com/api/data?phone=%2B1234567890')
           .with(headers: { 'X-Chatwoot-Contact-Phone' => '+1234567890' })
       end
 

@@ -29,6 +29,15 @@ module Concerns::Toolable
                   description: param_def['description'],
                   required: param_def['source'].present? || param_def.fetch('required', true)
       end
+
+      base_class.extra_parameters.each do |param_def|
+        next if custom_tool_record.param_schema.any? { |schema| schema['name'] == param_def[:name].to_s }
+
+        parameter param_def[:name],
+                  type: param_def[:type],
+                  description: param_def[:description],
+                  required: param_def[:required]
+      end
     end
 
     # Register as a constant so the class gets a proper name (Class#name).

@@ -145,12 +145,12 @@ RSpec.describe Captain::Assistant::AgentRunnerService do
         expect(email_parameters(nil)).to be_empty
       end
 
-      it 'gives the model an email parameter in the playground' do
-        expect(email_parameters('playground')).to contain_exactly(:email)
+      it 'gives the model an email parameter and the customer phone in the playground' do
+        expect(email_parameters('playground')).to contain_exactly(:email, :phone)
       end
 
-      it 'gives the model an email parameter for a reply suggestion' do
-        expect(email_parameters('copilot_reply_suggestion')).to contain_exactly(:email)
+      it 'gives the model an email parameter and the customer phone for a reply suggestion' do
+        expect(email_parameters('copilot_reply_suggestion')).to contain_exactly(:email, :phone)
       end
     end
 

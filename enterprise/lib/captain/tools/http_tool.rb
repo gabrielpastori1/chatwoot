@@ -13,6 +13,11 @@ class Captain::Tools::HttpTool < Captain::Tools::BasePublicTool
     false
   end
 
+  # Parameters added for the user this tool serves, on top of the tool's own schema.
+  def self.extra_parameters
+    []
+  end
+
   def active?
     @custom_tool.enabled?
   end
@@ -33,6 +38,7 @@ class Captain::Tools::HttpTool < Captain::Tools::BasePublicTool
   def request(tool_context, params)
     url = @custom_tool.build_request_url(params)
     body = @custom_tool.build_request_body(params)
+    url = append_phone_parameter(url, params[:phone] || params['phone'])
     @custom_tool.format_response(execute_http_request(url, body, tool_context))
   end
 
@@ -40,6 +46,27 @@ class Captain::Tools::HttpTool < Captain::Tools::BasePublicTool
   def stored_verified_email(state)
     conversation = find_conversation(state)
     conversation && Captain::EmailVerification.new(conversation).verified_email
+  end
+
+  # The contact phone, or the WhatsApp id of this conversation when the contact has none.
+  # Blank when neither exists, so the request goes out without a phone parameter.
+  def stored_contact_phone(state)
+    conversation = find_conversation(state)
+    return if conversation.blank?
+
+    contact_phone = conversation.contact&.phone_number.to_s.strip
+    return contact_phone if contact_phone.present?
+
+    whatsapp_source_id(conversation).to_s.strip.presence
+  end
+
+  def same_phone?(passed, contact_phone)
+    left = passed.to_s.strip
+    right = contact_phone.to_s.strip
+    return false if left.blank? || right.blank?
+
+    digits = phone_digits(left)
+    left == right || (digits.present? && digits == phone_digits(right))
   end
 
   def safe_to_run_after_new_customer_message?
@@ -73,6 +100,37 @@ class Captain::Tools::HttpTool < Captain::Tools::BasePublicTool
       validate_content_type: false
     ) { |result| response_body = result.tempfile.read }
     response_body
+  end
+
+  def whatsapp_source_id(conversation)
+    return unless conversation.inbox&.channel_type == 'Channel::Whatsapp'
+
+    conversation.contact_inbox&.source_id
+  end
+
+  def phone_digits(value)
+    value.gsub(/\D/, '')
+  end
+
+  # Query param, so a tool sends phone without a schema entry and without a template change.
+  # A template that already renders phone= keeps that value and is not given a second one.
+  def append_phone_parameter(url, phone)
+    phone = phone.to_s.strip
+    return url if phone.blank? || query_has_phone?(url)
+
+    uri = URI.parse(url)
+    addition = "phone=#{URI.encode_www_form_component(phone)}"
+    uri.query = [uri.query, addition].compact.join('&')
+    uri.to_s
+  end
+
+  def query_has_phone?(url)
+    query = URI.parse(url).query
+    return false if query.blank?
+
+    URI.decode_www_form(query).any? { |name, _value| name == 'phone' }
+  rescue URI::InvalidURIError
+    false
   end
 
   def request_headers(tool_context, json_body, auth_headers)

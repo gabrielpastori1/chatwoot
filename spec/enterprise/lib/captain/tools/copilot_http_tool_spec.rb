@@ -22,8 +22,9 @@ RSpec.describe Captain::Tools::CopilotHttpTool, type: :model do
                                                       .and_return(instance_double(Captain::EmailVerification, verified_email: 'jane@example.com'))
   end
 
-  it 'shows verified parameters to the model' do
-    expect(tool.class.declared_parameters.keys).to contain_exactly(:email)
+  it 'shows verified parameters to the model, plus the customer phone' do
+    expect(tool.class.declared_parameters.keys).to contain_exactly(:email, :phone)
+    expect(tool.class.declared_parameters[:phone].required).to be false
   end
 
   describe '#perform' do
@@ -58,6 +59,31 @@ RSpec.describe Captain::Tools::CopilotHttpTool, type: :model do
       allow(Captain::EmailVerification).to receive(:new).and_return(instance_double(Captain::EmailVerification, verified_email: nil))
 
       expect(tool.perform(tool_context)).to eq('{"found": true}')
+    end
+
+    it 'sends the phone the model passes and says when it is not the customer phone' do
+      conversation.contact.update!(phone_number: '+5511999999999')
+
+      result = tool.perform(tool_context, email: 'jane@example.com', phone: '+5511000000000')
+
+      expect(WebMock).to have_requested(:get, 'https://example.com/customers?email=jane%40example.com&phone=%2B5511000000000')
+      expect(result).to include('is not the customer phone')
+    end
+
+    it 'adds no phone note when the number is the customer phone, ignoring a leading plus' do
+      conversation.contact.update!(phone_number: '+5511999999999')
+
+      result = tool.perform(tool_context, email: 'jane@example.com', phone: '5511999999999')
+
+      expect(result).to eq('{"found": true}')
+      expect(WebMock).to have_requested(:get, 'https://example.com/customers?email=jane%40example.com&phone=5511999999999')
+    end
+
+    it 'sends no phone and adds no phone note when the customer has none' do
+      result = tool.perform(tool_context, email: 'jane@example.com')
+
+      expect(result).to eq('{"found": true}')
+      expect(WebMock).to have_requested(:get, 'https://example.com/customers?email=jane%40example.com')
     end
 
     it 'runs with another email the agent passes for a reply suggestion' do

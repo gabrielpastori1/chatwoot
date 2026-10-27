@@ -142,6 +142,77 @@ RSpec.describe Captain::Tools::PublicHttpTool, type: :model do
       end
     end
 
+    context 'when the request carries the customer phone' do
+      let(:inbox) { create(:inbox, account: account) }
+      let(:contact) { create(:contact, account: account, phone_number: '+5511999999999') }
+      let(:contact_inbox) { create(:contact_inbox, inbox: inbox, contact: contact) }
+      let(:conversation) { create(:conversation, account: account, inbox: inbox, contact_inbox: contact_inbox, contact: contact) }
+      let(:state) { { account_id: account.id, conversation: { id: conversation.id } } }
+      let(:tool_context) { Struct.new(:state).new(state) }
+
+      before do
+        custom_tool.update!(http_method: 'GET', endpoint_url: 'https://example.com/orders/123', param_schema: [], response_template: nil)
+        stub_request(:get, %r{\Ahttps://example.com/orders/123}).to_return(status: 200, body: '{"status": "success"}')
+      end
+
+      it 'sends the contact phone even when the tool schema has no phone parameter' do
+        expect(tool.perform(tool_context, phone: '+5511000000000')).to eq('{"status": "success"}')
+
+        expect(WebMock).to have_requested(:get, 'https://example.com/orders/123?phone=%2B5511999999999')
+      end
+
+      it 'calls the endpoint without a phone when the contact has none and the channel is not WhatsApp' do
+        contact.update!(phone_number: nil)
+
+        expect(tool.perform(tool_context)).to eq('{"status": "success"}')
+        expect(WebMock).to have_requested(:get, 'https://example.com/orders/123')
+      end
+
+      it 'uses the WhatsApp id when the contact has no phone' do
+        channel = create(:channel_whatsapp, account: account, sync_templates: false, validate_provider_config: false)
+        whatsapp_inbox = channel.inbox
+        whatsapp_contact = create(:contact, account: account)
+        whatsapp_contact_inbox = create(:contact_inbox, inbox: whatsapp_inbox, contact: whatsapp_contact, source_id: '5511888888888')
+        whatsapp_conversation = create(:conversation, account: account, inbox: whatsapp_inbox, contact: whatsapp_contact,
+                                                      contact_inbox: whatsapp_contact_inbox)
+        state[:conversation] = { id: whatsapp_conversation.id }
+
+        tool.perform(tool_context)
+
+        expect(WebMock).to have_requested(:get, 'https://example.com/orders/123?phone=5511888888888')
+      end
+
+      it 'keeps the contact phone when the conversation is also WhatsApp' do
+        channel = create(:channel_whatsapp, account: account, sync_templates: false, validate_provider_config: false)
+        whatsapp_inbox = channel.inbox
+        whatsapp_contact_inbox = create(:contact_inbox, inbox: whatsapp_inbox, contact: contact, source_id: '5511888888888')
+        whatsapp_conversation = create(:conversation, account: account, inbox: whatsapp_inbox, contact: contact,
+                                                      contact_inbox: whatsapp_contact_inbox)
+        state[:conversation] = { id: whatsapp_conversation.id }
+
+        tool.perform(tool_context)
+
+        expect(WebMock).to have_requested(:get, 'https://example.com/orders/123?phone=%2B5511999999999')
+      end
+
+      it 'does not add a second phone parameter when the template already renders one' do
+        custom_tool.update!(endpoint_url: 'https://example.com/orders/123?phone={{ phone | url_encode }}')
+
+        tool.perform(tool_context)
+
+        expect(WebMock).to have_requested(:get, 'https://example.com/orders/123?phone=%2B5511999999999').once
+      end
+
+      it 'renders the phone in a request body and still sends it as a parameter' do
+        custom_tool.update!(http_method: 'POST', endpoint_url: 'https://example.com/orders', request_template: '{"id": "{{ phone }}"}')
+        stub_request(:post, %r{\Ahttps://example.com/orders}).to_return(status: 200, body: '{"created": true}')
+
+        expect(tool.perform(tool_context)).to eq('{"created": true}')
+        expect(WebMock).to have_requested(:post, 'https://example.com/orders?phone=%2B5511999999999')
+          .with(body: '{"id": "+5511999999999"}')
+      end
+    end
+
     it 'ignores a run state that says an admin or an agent is the user' do
       custom_tool.update!(settings: { 'requires_email_verification' => true })
       stub_request(:get, %r{\Ahttps://example.com}).to_return(status: 200, body: '{}')

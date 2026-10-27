@@ -6,7 +6,8 @@ class Captain::Tools::PublicHttpTool < Captain::Tools::HttpTool
                    'If that is not possible, ask whether they want to talk to a support agent.'.freeze
 
   def perform(tool_context, **params)
-    return super unless @custom_tool.requires_email_verification?
+    params = params_with_contact_phone(tool_context, params)
+    return super(tool_context, **params) unless @custom_tool.requires_email_verification?
 
     verified_email = stored_verified_email(tool_context.state)
     return failure_result(EMAIL_REQUIRED, tool_context.state) unless verified_email
@@ -14,5 +15,14 @@ class Captain::Tools::PublicHttpTool < Captain::Tools::HttpTool
     # Set last, so a value from the model can never replace the verified email
     email_param = @custom_tool.verified_email_param
     super(tool_context, **(email_param ? params.merge(email_param.to_sym => verified_email) : params))
+  end
+
+  private
+
+  # The model does not choose this value. A missing phone is left out rather than blocking the call.
+  def params_with_contact_phone(tool_context, params)
+    params = params.except(:phone, 'phone')
+    phone = stored_contact_phone(tool_context.state)
+    phone.present? ? params.merge(phone: phone) : params
   end
 end

@@ -85,6 +85,7 @@ features:
         gpt-4.1,
         gpt-5.1,
         gpt-5.2,
+        gpt-6-luna,
       ]
     default: gpt-4.1
     internal: true
@@ -97,6 +98,7 @@ features:
         gpt-4.1,
         gpt-5.1,
         gpt-5.2,
+        gpt-6-luna,
         claude-haiku-4.5,
         gemini-3-flash,
         gemini-3-pro,
@@ -111,6 +113,7 @@ features:
         gpt-4.1,
         gpt-5.1,
         gpt-5.2,
+        gpt-6-luna,
         claude-haiku-4.5,
         claude-sonnet-4.5,
         gemini-3-flash,
@@ -126,6 +129,7 @@ features:
         gpt-4.1,
         gpt-5.1,
         gpt-5.2,
+        gpt-6-luna,
         claude-haiku-4.5,
         claude-sonnet-4.5,
         gemini-3-flash,
@@ -140,6 +144,7 @@ features:
         gpt-4.1,
         gpt-5.1,
         gpt-5.2,
+        gpt-6-luna,
         claude-haiku-4.5,
         claude-sonnet-4.5,
         gemini-3-flash,
@@ -154,6 +159,7 @@ features:
         gpt-4.1,
         gpt-5.1,
         gpt-5.2,
+        gpt-6-luna,
         claude-haiku-4.5,
         claude-sonnet-4.5,
         gemini-3-flash,
@@ -168,6 +174,7 @@ features:
         gpt-4.1,
         gpt-5.1,
         gpt-5.2,
+        gpt-6-luna,
         claude-haiku-4.5,
         claude-sonnet-4.5,
         gemini-3-flash,
@@ -175,7 +182,7 @@ features:
       ]
     default: gpt-4.1-mini
   pdf_faq_generation:
-    models: [gpt-4.1-mini, gpt-5-mini, gpt-4.1, gpt-5.1, gpt-5.2]
+    models: [gpt-4.1-mini, gpt-5-mini, gpt-4.1, gpt-5.1, gpt-5.2, gpt-6-luna]
     default: gpt-4.1-mini
   help_center_article_generation:
     models:
@@ -185,6 +192,7 @@ features:
         gpt-4.1,
         gpt-5.1,
         gpt-5.2,
+        gpt-6-luna,
         claude-haiku-4.5,
         claude-sonnet-4.5,
         gemini-3-flash,
@@ -193,16 +201,16 @@ features:
     default: gpt-5.2
   onboarding_content_generation:
     models:
-      [gpt-4.1, gpt-4.1-mini, gpt-5-mini, gpt-5.1, gpt-5.2]
+      [gpt-4.1, gpt-4.1-mini, gpt-5-mini, gpt-5.1, gpt-5.2, gpt-6-luna]
     default: gpt-4.1
   help_center_query_translation:
-    models: [gpt-4.1-nano, gpt-4.1-mini, gpt-5-mini]
+    models: [gpt-4.1-nano, gpt-4.1-mini, gpt-5-mini, gpt-6-luna]
     default: gpt-4.1-nano
   message_translation:
     models: [gpt-6-luna, gpt-6.1-sol, gpt-5.2, gpt-5-mini, gpt-4.1-mini]
     default: gpt-6-luna
   language_detection:
-    models: [gpt-5-mini, gpt-5-nano]
+    models: [gpt-5-mini, gpt-5-nano, gpt-6-luna]
     default: gpt-5-mini
   audio_transcription:
     models: [gpt-4o-mini-transcribe, whisper-1]
