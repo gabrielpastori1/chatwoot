@@ -69,6 +69,14 @@ RSpec.describe Captain::ConversationCompletionService do
         expect(service.perform).to include(complete: true)
       end
 
+      it 'uses the registered model when the installation model includes a provider prefix' do
+        allow(ChatwootApp).to receive(:self_hosted_paid?).and_return(true)
+        InstallationConfig.find_or_initialize_by(name: 'CAPTAIN_OPEN_AI_MODEL').update!(value: 'openai/gpt-6-luna')
+        allow(mock_context).to receive(:chat).with(model: 'gpt-6-luna').and_return(mock_chat)
+
+        expect(service.perform).to include(complete: true)
+      end
+
       it 'uses the installation model on self-hosted Enterprise' do
         allow(ChatwootApp).to receive(:self_hosted_paid?).and_return(true)
         InstallationConfig.find_or_initialize_by(name: 'CAPTAIN_OPEN_AI_MODEL').update!(value: 'gpt-5.1')

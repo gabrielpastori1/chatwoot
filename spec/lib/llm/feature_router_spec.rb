@@ -61,6 +61,19 @@ RSpec.describe Llm::FeatureRouter do
       )
     end
 
+    it 'uses the registered model when the installation model has a provider prefix' do
+      allow(ChatwootApp).to receive(:self_hosted_paid?).and_return(true)
+      InstallationConfig.find_or_initialize_by(name: 'CAPTAIN_OPEN_AI_MODEL').update!(value: 'openai/gpt-6-luna')
+
+      resolved = described_class.resolve(feature: 'conversation_completion', account: account)
+
+      expect(resolved).to include(
+        provider: 'openai',
+        model: 'gpt-6-luna',
+        source: :installation_override
+      )
+    end
+
     it 'keeps the OpenAI provider for a custom installation model' do
       allow(ChatwootApp).to receive(:self_hosted_paid?).and_return(true)
       InstallationConfig.find_or_initialize_by(name: 'CAPTAIN_OPEN_AI_MODEL').update!(value: 'custom-openai-model')

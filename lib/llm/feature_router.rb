@@ -52,7 +52,20 @@ module Llm::FeatureRouter
       return unless feature_key == 'conversation_completion'
       return unless ChatwootApp.self_hosted_paid?
 
-      InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_MODEL')&.value.presence
+      registered_model(InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_MODEL')&.value)
+    end
+
+    # The installation field may store a gateway id such as openai/gpt-6-luna.
+    # RubyLLM's registry uses the model id, so a known provider prefix is removed.
+    def registered_model(model_name)
+      model_name = model_name.to_s.strip
+      return if model_name.blank?
+      return model_name if Llm::Models.model_config(model_name)
+
+      bare_model = model_name.split('/', 2).last
+      return bare_model if bare_model != model_name && Llm::Models.model_config(bare_model)
+
+      model_name
     end
 
     def provider_for(model, source)
